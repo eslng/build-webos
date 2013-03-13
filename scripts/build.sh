@@ -26,14 +26,14 @@ pushd ${SCRIPTDIR} > /dev/null
 if [ `ls ../ | grep -c scripts` -lt 1 ]
     then echo "Make sure that `basename $0` is in scripts folder of project"
     popd
-    exit 1
+    exit $LINENO
 fi
 popd > /dev/null
 
 cd ${SCRIPTDIR}
 cd ..
 # Has mcf been ran and generated a makefile?
-test -f Makefile || echo "Make sure that mcf has been run and Makefile is generated" && exit 2
+test -f Makefile || echo "Make sure that mcf has been run and Makefile is generated" && exit $LINENO
 
 function showusage {
   echo "Usage: `basename $0`
@@ -42,7 +42,7 @@ function showusage {
                -N, --build-number       Build number. This will be calculated from git if not given.
                -u, --scp-url            scp will use this path to download and update \${URL}/latest_project_baselines.txt
                                         and also \${URL}/history will be populated"
-  exit 3
+  exit $LINENO
 }
 
 # We need at least buildhistory path with an argument
@@ -51,7 +51,7 @@ if [ $# -lt 2 ] ; then showusage ; fi
 TEMP=`getopt -o p:hN:u: --long buildhistory-path:,help,build-number:,scp-url: \
     -n $(basename $0) -- "$@"`
 
-if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit $LINENO ; fi
 
 
 # Note the quotes around `$TEMP': they are essential!
@@ -86,15 +86,15 @@ make
 
 if [ ! -d "${BUILDHISTORY_PATH}" ] ; then
   echo "buildhistory_path '${BUILDHISTORY_PATH}' is not directory"
-  exit 2
+  exit $LINENO
 fi
 if [ ! -e "${BUILDHISTORY_INSTALLED_PACKAGES}" ] ; then
   echo "installed-packages.txt does not exist in buildhistory_path '${BUILDHISTORY_INSTALLED_PACKAGES}'"
-  exit 2
+  exit $LINENO
 fi
 if [ ! -e "${BUILDHISTORY_BUILD_ID}" ] ; then
   echo "build-id does not exist in buildhistory_path '${BUILDHISTORY_BUILD_ID}'"
-  exit 2
+  exit $LINENO
 fi
 
 # Copy build-id to .txt for browser to show it as text/plain instead of downloading it
@@ -107,4 +107,4 @@ command \
 
 cd ${CALLDIR}
 
-# vim: ts=4 sts=4 sw=4 et
+# vim: ts=2 sts=2 sw=2 et
